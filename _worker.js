@@ -137,7 +137,6 @@ export default {
 					const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
 					let modifiedRequest = new Request(proxyUrl, {
 						method: request.method,
-						headers: newHeaders,
 						body: request.body,
 						redirect: 'manual',
 					});
