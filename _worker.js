@@ -92,8 +92,6 @@ export default {
 					}
 				}
 				default:
-	                                // For any other path, reverse proxy to 'random website' and return the original response, caching it in the process
-	                                // Use fetch to proxy the request to 15 different domains
 	                                const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
 	                                let modifiedRequest = new Request(proxyUrl, {
 	                                	method: request.method,
@@ -108,7 +106,6 @@ export default {
 			                                statusText: 'Forbidden',
 		                                });
 	                                }
-	                                // Return the response from the proxy server
 	                                return proxyResponse;
 				}
 			} else {
