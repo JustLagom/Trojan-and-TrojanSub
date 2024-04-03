@@ -132,7 +132,8 @@ export default {
 					}
 				}
 				default:
-				    const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
+                                    url.fakehostname = '';
+                                    url.protocol = 'https:';
                                     request = new Request(url, request);
                                     return await fetch(request);
 				}
