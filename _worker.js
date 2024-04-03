@@ -92,21 +92,10 @@ export default {
 					}
 				}
 				default:
-	                                const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
-	                                let modifiedRequest = new Request(proxyUrl, {
-	                                	method: request.method,
-	                                	body: request.body,
-	                                	redirect: 'manual',
-	                                });
-	                                const proxyResponse = await fetch(modifiedRequest, { redirect: 'manual' });
-	                                // Check for 302 or 301 redirect status and return an error response
-	                                if ([301, 302].includes(proxyResponse.status)) {
-		                                return new Response(`Redirects to ${fakehostname} are not allowed.`, {
-			                                status: 403,
-			                                statusText: 'Forbidden',
-		                                });
-	                                }
-	                                return proxyResponse;
+					url.protocol = 'https:';
+                                        url.hostname = fakehostname; // 使用变量设置hostname
+                                        request = new Request(url, request);
+                                        return await fetch(request);
 				}
 			} else {
 				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
