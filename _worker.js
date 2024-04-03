@@ -8,6 +8,7 @@ let subconverter = '';
 let subconfig = "";
 let socks5Address = '';
 let RproxyIP = '';
+let fakehostname = 'bing.com';
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
 }
@@ -32,6 +33,7 @@ export default {
 			userID = (env.UUID || userID).toLowerCase();
 			proxyIP = env.PROXYIP || proxyIP;
 			socks5Address = env.SOCKS5 || socks5Address;
+			fakehostname = env.FAKEHOSTNAME || fakehostname;
 			sub = env.SUB || sub;
 			subconverter = env.SUBAPI || subconverter;
 			subconfig = env.SUBCONFIG || subconfig;
@@ -130,12 +132,25 @@ export default {
 					}
 				}
                                 default:
-                                     // return new Response('Not found', { status: 404 });
-                                    // For any other path, reverse proxy to 'maimai.sega.jp' and return the original response
-                                    url.hostname = 'maimai.sega.jp';
-                                    url.protocol = 'https:';
-                                    request = new Request(url, request);
-                                    return await fetch(request);
+                                        // return new Response('Not found', { status: 404 });
+					// For any other path, reverse proxy to 'fake website' and return the original response, caching it in the process
+					const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
+					let modifiedRequest = new Request(proxyUrl, {
+						method: request.method,
+						headers: newHeaders,
+						body: request.body,
+						redirect: 'manual',
+					});
+					const proxyResponse = await fetch(modifiedRequest, { redirect: 'manual' });
+					// Check for 302 or 301 redirect status and return an error response
+					if ([301, 302].includes(proxyResponse.status)) {
+						return new Response(`Redirects to ${fakehostname} are not allowed.`, {
+							status: 403,
+							statusText: 'Forbidden',
+						});
+					}
+					// Return the response from the proxy server
+					return proxyResponse;
 				}
 			} else {
 				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
