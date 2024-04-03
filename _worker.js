@@ -132,10 +132,31 @@ export default {
 					}
 				}
 				default:
-                                    url.hostname = 'fakehostname';
-                                    url.protocol = 'https:';
-                                    request = new Request(url, request);
-                                    return await fetch(request);
+					// return new Response('Not found', { status: 404 });
+					// For any other path, reverse proxy to 'fake website' and return the original response, caching it in the process
+					const newHeaders = new Headers(request.headers);
+					newHeaders.set('cf-connecting-ip', '1.2.3.4');
+					newHeaders.set('x-forwarded-for', '1.2.3.4');
+					newHeaders.set('x-real-ip', '1.2.3.4');
+					newHeaders.set('referer', 'https://www.google.com/search?q=edtunnel');
+					// Use fetch to proxy the request to 15 different domains
+					const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
+					let modifiedRequest = new Request(proxyUrl, {
+						method: request.method,
+						headers: newHeaders,
+						body: request.body,
+						redirect: 'manual',
+					});
+					const proxyResponse = await fetch(modifiedRequest, { redirect: 'manual' });
+					// Check for 302 or 301 redirect status and return an error response
+					if ([301, 302].includes(proxyResponse.status)) {
+						return new Response(`Redirects to ${fakehostname} are not allowed.`, {
+							status: 403,
+							statusText: 'Forbidden',
+						});
+					}
+					// Return the response from the proxy server
+					return proxyResponse;
 				}
 			} else {
 				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
