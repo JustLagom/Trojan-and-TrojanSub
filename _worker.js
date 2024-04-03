@@ -132,7 +132,7 @@ export default {
 					}
 				}
 				default:
-                                    url.fakehostname = '';
+                                    url.hostname = 'fakehostname';
                                     url.protocol = 'https:';
                                     request = new Request(url, request);
                                     return await fetch(request);
