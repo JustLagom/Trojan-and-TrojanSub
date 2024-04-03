@@ -131,16 +131,8 @@ export default {
 						});
 					}
 				}
-					default:
-
-						const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
-
-						if ([301, 302].includes(proxyResponse.status)) {
-							return new Response(`Redirects to ${fakehostname} are not allowed.`, {
-								status: 403,
-								statusText: 'Forbidden',
-							});
-						}
+				default:
+				    const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
                                     request = new Request(url, request);
                                     return await fetch(request);
 				}
