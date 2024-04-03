@@ -8,7 +8,7 @@ let subconverter = '';
 let subconfig = "";
 let socks5Address = '';
 let RproxyIP = '';
-let fakehostname = '';
+let proxydomain = '';
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
 }
@@ -33,7 +33,7 @@ export default {
 			userID = (env.UUID || userID).toLowerCase();
 			proxyIP = env.PROXYIP || proxyIP;
 			socks5Address = env.SOCKS5 || socks5Address;
-			fakehostname = env.FAKEHOSTNAME || fakehostname;
+			proxydomain = env.PROXYDOMAIN || proxydomain;
 			sub = env.SUB || sub;
 			subconverter = env.SUBAPI || subconverter;
 			subconfig = env.SUBCONFIG || subconfig;
@@ -93,7 +93,7 @@ export default {
 				}
 				default:
 					url.protocol = 'https:';
-                                        url.hostname = fakehostname; // 使用变量设置hostname
+                                        url.hostname = proxydomain;
                                         request = new Request(url, request);
                                         return await fetch(request);
 				}
