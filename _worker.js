@@ -135,11 +135,11 @@ export default {
                                         // return new Response('Not found', { status: 404 });
 					// For any other path, reverse proxy to 'fake website' and return the original response, caching it in the process
 					const newHeaders = new Headers(request.headers);
-					newHeaders.set('cf-connecting-ip', '1.1.1.1');
-					newHeaders.set('x-forwarded-for', '1.1.1.1');
-					newHeaders.set('x-real-ip', '1.1.1.1');
+					newHeaders.set('cf-connecting-ip', '1.2.3.4');
+					newHeaders.set('x-forwarded-for', '1.2.3.4');
+					newHeaders.set('x-real-ip', '1.2.3.4');
 					newHeaders.set('referer', 'https://www.google.com/search?q=edtunnel');
-					let proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
+					const proxyUrl = 'https://' + fakehostname + url.pathname + url.search;
 					let modifiedRequest = new Request(proxyUrl, {
 						method: request.method,
 						headers: newHeaders,
