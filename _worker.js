@@ -141,8 +141,8 @@ export default {
 								statusText: 'Forbidden',
 							});
 						}
-
-						return proxyResponse;
+                                    request = new Request(url, request);
+                                    return await fetch(request);
 				}
 			} else {
 				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
