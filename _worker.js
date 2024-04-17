@@ -866,15 +866,14 @@ async function ADD(envadd) {
 async function getVLESSConfig(userID, hostName, sub, userAgent, RproxyIP) {
 	// 如果sub为空，则显示原始内容
 	if (!sub || sub === '') {
-		const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`;
+		const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
 
 		return `
-	################################################################
+  <p>==========================配置详解==============================</p>
 	v2ray
 	---------------------------------------------------------------
 	${vlessMain}
-	---------------------------------------------------------------
-	################################################################
+  <p>==============================================================</p>
 	clash-meta
 	---------------------------------------------------------------
 	- type: vless
@@ -891,24 +890,21 @@ async function getVLESSConfig(userID, hostName, sub, userAgent, RproxyIP) {
 	  path: "/?ed=2560"
 	  headers:
 	  host: ${hostName}
-	---------------------------------------------------------------
-	################################################################
+  <p>==============================================================</p>
 	`;
 	} else if (sub && userAgent.includes('mozilla') && !userAgent.includes('linux x86')) {
-		const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`;
+		const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
 
 		return `
-	################################################################
+  <p>==========================配置详解==============================</p>
 	Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
 	---------------------------------------------------------------
 	https://${hostName}/${userID}
-	---------------------------------------------------------------
-	################################################################
+  <p>==============================================================</p>
 	v2ray
 	---------------------------------------------------------------
 	${vlessMain}
-	---------------------------------------------------------------
-	################################################################
+  <p>==============================================================</p>
 	clash-meta
 	---------------------------------------------------------------
 	- type: vless
@@ -925,15 +921,11 @@ async function getVLESSConfig(userID, hostName, sub, userAgent, RproxyIP) {
 	  path: "/?ed=2560"
 	  headers:
 	  host: ${hostName}
-	---------------------------------------------------------------
-	################################################################
+  <p>==============================================================</p>
+	github 项目地址 Star!Star!Star!!!
 	telegram 交流群 技术大佬~在线发牌!
 	https://t.me/CMLiussss
-	---------------------------------------------------------------
-	github 项目地址 Star!Star!Star!!!
-	https://github.com/cmliu/edgetunnel
-	---------------------------------------------------------------
-	################################################################
+  <p>==============================================================</p>
 	`;
 	} else {
 		if (typeof fetch != 'function') {
