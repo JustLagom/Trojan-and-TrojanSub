@@ -1,14 +1,17 @@
 // <!--GAMFC-->version base on commit 43fad05dcdae3b723c53c226f8181fc5bd47223e, time is 2023-06-22 15:20:05 UTC<!--GAMFC-END-->.
 // @ts-ignore
 import { connect } from 'cloudflare:sockets';
+
 let userID = '90cd4a77-141a-43c9-991b-08263cfe9c10';
-let proxyIP = '';
-let sub = '';
-let subconverter = '';
-let subconfig = "";
+let token= 'vless';
+let RproxyIP = 'true';
+let proxydomain = 'www.bing.com';
+let sub = 'vless-4ca.pages.dev';
+let subconverter = "apiurl.v1.mk";
+let subconfig = "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online_Full_MultiMode.ini";
 let socks5Address = '';
-let RproxyIP = '';
-let proxydomain = '';
+let proxyIP = '';
+
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
 }
@@ -31,7 +34,11 @@ export default {
 		try {
 			const userAgent = request.headers.get('User-Agent').toLowerCase();
 			userID = (env.UUID || userID).toLowerCase();
+			token = env.TOKEN || token;
 			proxyIP = env.PROXYIP || proxyIP;
+			const proxyIPs = await ADD(proxyIP);
+			proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+			//console.log(proxyIP);
 			socks5Address = env.SOCKS5 || socks5Address;
 			proxydomain = env.PROXYDOMAIN || proxydomain;
 			sub = env.SUB || sub;
@@ -50,6 +57,9 @@ export default {
 			} else {
 				RproxyIP = env.RPROXYIP || !proxyIP ? 'true' : 'false';
 			}
+			if (proxyIP.includes(',')) proxyIP = proxyIP.split(",")[Math.floor(Math.random() * proxyIP.split(",").length)];
+			while(proxyIP.includes(' ')) proxyIP = proxyIP.replace(' ', '');
+			//console.log(proxyIP);
 			const upgradeHeader = request.headers.get('Upgrade');
 			const url = new URL(request.url);
 			if (url.searchParams.has('notls')) tls = false;
@@ -61,10 +71,10 @@ export default {
 					status: 200,
 					headers: {
 						"Content-Type": "application/json;charset=utf-8",
-					},
+					}
 					});
 				}
-				case `/${userID}`: {
+				case `/${token}`: {
 					const vlessConfig = await getVLESSConfig(userID, request.headers.get('Host'), sub, userAgent, RproxyIP);
 					const now = Date.now();
 					const timestamp = Math.floor(now / 1000);
@@ -92,10 +102,10 @@ export default {
 					}
 				}
 				default:
-                                    url.hostname = proxydomain;
-                                    url.protocol = 'https:';
-                                    request = new Request(url, request);
-                                    return await fetch(request);
+					url.hostname = proxydomain;
+					url.protocol = 'https:';
+					request = new Request(url, request);
+					return await fetch(request);
 				}
 			} else {
 				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
@@ -109,9 +119,6 @@ export default {
 		}
 	},
 };
-
-
-
 
 /**
  * 
@@ -448,7 +455,6 @@ function processVlessHeader(
 	};
 }
 
-
 /**
  * 
  * @param {import("@cloudflare/workers-types").Socket} remoteSocket 
@@ -769,7 +775,6 @@ async function socks5Connect(addressType, addressRemote, portRemote, log) {
 	return socket;
 }
 
-
 /**
  * 
  * @param {string} address
@@ -841,6 +846,16 @@ function generateUUID() {
 	return uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5').toLowerCase();
 }
 
+async function ADD(envadd) {
+	var addtext = envadd.replace(/[	 "'\r\n]+/g, ',').replace(/,+/g, ','); // 将空格、双引号、单引号和换行符替换为逗号
+	//console.log(addtext);
+	if (addtext.charAt(0) == ',') addtext = addtext.slice(1);
+	if (addtext.charAt(addtext.length -1) == ',') addtext = addtext.slice(0, addtext.length - 1);
+	const add = addtext.split(',');
+	//console.log(add);
+	return add ;
+}
+
 /**
  * @param {string} userID
  * @param {string | null} hostName
@@ -851,15 +866,17 @@ function generateUUID() {
 async function getVLESSConfig(userID, hostName, sub, userAgent, RproxyIP) {
 	// 如果sub为空，则显示原始内容
 	if (!sub || sub === '') {
-		const vlessMain = `vless://${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
-  
+		const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`;
+
 		return `
-  <p>==========================配置详解==============================</p>
+	################################################################
 	v2ray
-     ---------------------------------------------------------------
+	---------------------------------------------------------------
 	${vlessMain}
-  <p>===============================================================</p>
+	---------------------------------------------------------------
+	################################################################
 	clash-meta
+	---------------------------------------------------------------
 	- type: vless
 	  name: ${hostName}
 	  server: ${hostName}
@@ -874,22 +891,26 @@ async function getVLESSConfig(userID, hostName, sub, userAgent, RproxyIP) {
 	  path: "/?ed=2560"
 	  headers:
 	  host: ${hostName}
-  <p>===============================================================</p>
+	---------------------------------------------------------------
+	################################################################
 	`;
 	} else if (sub && userAgent.includes('mozilla') && !userAgent.includes('linux x86')) {
-		const vlessMain = `vless://${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
-	
+		const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`;
+
 		return `
-  <p>==========================配置详解==============================</p>
+	################################################################
 	Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
-     ---------------------------------------------------------------
+	---------------------------------------------------------------
 	https://${hostName}/${userID}
-  <p>===============================================================</p>
+	---------------------------------------------------------------
+	################################################################
 	v2ray
-     ---------------------------------------------------------------
+	---------------------------------------------------------------
 	${vlessMain}
-  <p>===============================================================</p>
+	---------------------------------------------------------------
+	################################################################
 	clash-meta
+	---------------------------------------------------------------
 	- type: vless
 	  name: ${hostName}
 	  server: ${hostName}
@@ -904,11 +925,15 @@ async function getVLESSConfig(userID, hostName, sub, userAgent, RproxyIP) {
 	  path: "/?ed=2560"
 	  headers:
 	  host: ${hostName}
-  <p>===============================================================</p>
-	github 项目 Star!Star!Star!!!
+	---------------------------------------------------------------
+	################################################################
 	telegram 交流群 技术大佬~在线发牌!
 	https://t.me/CMLiussss
-  <p>===============================================================</p>
+	---------------------------------------------------------------
+	github 项目地址 Star!Star!Star!!!
+	https://github.com/cmliu/edgetunnel
+	---------------------------------------------------------------
+	################################################################
 	`;
 	} else {
 		if (typeof fetch != 'function') {
