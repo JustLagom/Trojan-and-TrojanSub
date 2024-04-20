@@ -2,8 +2,6 @@
 // @ts-ignore
 import { connect } from 'cloudflare:sockets';
 
-// How to generate your own UUID:
-// [Windows] Press "Win + R", input cmd and run:  Powershell -NoExit -Command "[guid]::NewGuid()"
 let userID = 'd342d11e-d424-4583-b36e-524ab1f0afa4';
 
 let proxyIP = '';
@@ -28,21 +26,51 @@ export default {
                         if (!upgradeHeader || upgradeHeader !== 'websocket') {
                                 const url = new URL(request.url);
                                 switch (url.pathname) {
-                                        case '/':
-                                                return new Response(JSON.stringify(request.cf), { status: 200 });
-                                        case `/${userID}`: {
-                                                const vlessConfig = getVLESSConfig(userID, request.headers.get('Host'));
+                                case `/cf`:{
+                                        return new Response(JSON.stringify(request.cf, null, 4), {
+                                        status: 200,
+                                        headers: {
+                                                "Content-Type": "application/json;charset=utf-8",
+                                        }
+                                        });
+                                }
+                                case `/${token}`: {
+                                        const vlessConfig = await getVLESSConfig(token, userID, request.headers.get('Host'), sub, userAgent, RproxyIP);
+                                        const now = Date.now();
+                                        const timestamp = Math.floor(now / 1000);
+                                        const expire = 4102329600;//2099-12-31
+                                        const today = new Date(now);
+                                        today.setHours(0, 0, 0, 0);
+                                        const UD = Math.floor(((now - today.getTime())/86400000) * 24 * 1099511627776 / 2);
+                                        if (userAgent && userAgent.includes('mozilla')){
                                                 return new Response(`${vlessConfig}`, {
                                                         status: 200,
                                                         headers: {
                                                                 "Content-Type": "text/plain;charset=utf-8",
                                                         }
                                                 });
+                                        } else {
+                                                return new Response(`${vlessConfig}`, {
+                                                        status: 200,
+                                                        headers: {
+                                                                "Content-Disposition": "attachment; filename=edgetunnel; filename*=utf-8''edgetunnel",
+                                                                "Content-Type": "text/plain;charset=utf-8",
+                                                                "Profile-Update-Interval": "6",
+                                                                "Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${24 * 1099511627776}; expire=${expire}`,
+                                                        }
+                                                });
                                         }
-                                        default:
-                                                return new Response('Not found', { status: 404 });
+                                }
+                                default:
+                                        url.hostname = proxydomain;
+                                        url.protocol = 'https:';
+                                        request = new Request(url, request);
+                                        return await fetch(request);
                                 }
                         } else {
+                                if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
+                                else if (new RegExp('/proxyip.', 'i').test(url.pathname)) proxyIP = url.pathname.split("/proxyip.")[1];
+                                else if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
                                 return await vlessOverWSHandler(request);
                         }
                 } catch (err) {
@@ -51,9 +79,6 @@ export default {
                 }
         },
 };
-
-
-
 
 /**
  * 
