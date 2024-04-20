@@ -645,37 +645,113 @@ async function handleUDPOutBound(webSocket, vlessResponseHeader, log) {
 }
 
 /**
- * 
- * @param {string} userID 
+ * @param {string} token
+ * @param {string} userID
  * @param {string | null} hostName
- * @returns {string}
+ * @param {string} sub
+ * @param {string} userAgent
+ * @returns {Promise<string>}
  */
-function getVLESSConfig(userID, hostName) {
-        const vlessMain = `vless://${userID}\u0040${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=randomized&type=ws&host=${hostName}&path=%2F%3Fed%3D2048#${hostName}`
-        return `
-################################################################
-v2ray
----------------------------------------------------------------
-${vlessMain}
----------------------------------------------------------------
-################################################################
-clash-meta
----------------------------------------------------------------
-- type: vless
-  name: ${hostName}
-  server: ${hostName}
-  port: 443
-  uuid: ${userID}
-  network: ws
-  tls: true
-  udp: false
-  sni: ${hostName}
-  client-fingerprint: chrome
-  ws-opts:
-    path: "/?ed=2048"
-    headers:
-      host: ${hostName}
----------------------------------------------------------------
-################################################################
-`;
+let type = 'vless://';
+async function getVLESSConfig(token, userID, hostName, sub, userAgent, RproxyIP) {
+        // 如果sub为空，则显示原始内容
+        if (!sub || sub === '') {
+                const vlessMain = `${type}${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
+
+                return `
+  <p>==========================配置详解==============================</p>
+        v2ray
+        ---------------------------------------------------------------
+        ${vlessMain}
+  <p>==============================================================</p>
+        clash-meta
+        ---------------------------------------------------------------
+        - type: vless
+          name: EDGETUNNEL
+          server: ${hostName}
+          port: 443
+          uuid: ${userID}
+          network: ws
+          tls: true
+          udp: false
+          sni: ${hostName}
+          client-fingerprint: chrome
+          ws-opts:
+          path: "/?ed=2560"
+          headers:
+          host: ${hostName}
+  <p>==============================================================</p>
+        `;
+        } else if (sub && userAgent.includes('mozilla') && !userAgent.includes('linux x86')) {
+                const vlessMain = `${type}${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
+
+                return `
+  <p>==========================配置详解==============================</p>
+        Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
+        ---------------------------------------------------------------
+        https://${hostName}/${token}
+  <p>==============================================================</p>
+        v2ray
+        ---------------------------------------------------------------
+        ${vlessMain}
+  <p>==============================================================</p>
+        clash-meta
+        ---------------------------------------------------------------
+        - type: vless
+          name: EDGETUNNEL
+          server: ${hostName}
+          port: 443
+          uuid: ${userID}
+          network: ws
+          tls: true
+          udp: false
+          sni: ${hostName}
+          client-fingerprint: chrome
+          ws-opts:
+          path: "/?ed=2560"
+          headers:
+          host: ${hostName}
+  <p>==============================================================</p>
+        github 项目地址 Star!Star!Star!!!
+        telegram 交流群 技术大佬~在线发牌!
+        https://t.me/CMLiussss
+  <p>==============================================================</p>
+        `;
+        } else {
+                if (typeof fetch != 'function') {
+                        return 'Error: fetch is not available in this environment.';
+                }
+                // 如果是使用默认域名，则改成一个workers的域名，订阅器会加上代理
+                if (hostName.includes(".workers.dev")){
+                        fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.workers.dev`;
+                } else if (hostName.includes(".pages.dev")){
+                        fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.pages.dev`;
+                } else if (hostName.includes("worker") || hostName.includes("notls") || tls == false){
+                        fakeHostName = `notls.${fakeHostName}${generateRandomNumber()}.net`;
+                } else {
+                        fakeHostName = `${fakeHostName}.${generateRandomNumber()}.xyz`
+                }
+                let content = "";
+                let url = "";
+                let isBase64 = false;
+                if (userAgent.includes('clash') && !userAgent.includes('nekobox')) {
+                        url = `https://${subconverter}/sub?target=clash&url=https%3A%2F%2F${sub}%2Fsub%3Fhost%3D${fakeHostName}%26uuid%3D${fakeUserID}%26edgetunnel%3Dcmliu%26proxyip%3D${RproxyIP}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
+                } else if (userAgent.includes('sing-box') || userAgent.includes('singbox')) {
+                        url = `https://${subconverter}/sub?target=singbox&url=https%3A%2F%2F${sub}%2Fsub%3Fhost%3D${fakeHostName}%26uuid%3D${fakeUserID}%26edgetunnel%3Dcmliu%26proxyip%3D${RproxyIP}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
+                } else {
+                        url = `https://${sub}/sub?host=${fakeHostName}&uuid=${fakeUserID}&edgetunnel=cmliu&proxyip=${RproxyIP}`;
+                        isBase64 = true;
+                }
+                try {
+                        const response = await fetch(url ,{
+                        headers: {
+                                'User-Agent': 'CF-Workers-edgetunnel/cmliu'
+                        }});
+                        content = await response.text();
+                        return revertFakeInfo(content, userID, hostName, isBase64);
+                } catch (error) {
+                        console.error('Error fetching content:', error);
+                        return `Error fetching content: ${error.message}`;
+                }
+        }
 }
