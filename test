@@ -26,7 +26,15 @@ export default {
         async fetch(request, env, ctx) {
                 try {
                         userID = env.UUID || userID;
+                        token = env.TOKEN || token;
                         proxyIP = env.PROXYIP || proxyIP;
+                        const proxyIPs = await ADD(proxyIP);
+                        proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+                        //console.log(proxyIP);
+                        proxydomain = env.PROXYDOMAIN || proxydomain;
+                        sub = env.SUB || sub;
+                        subconverter = env.SUBAPI || subconverter;
+                        subconfig = env.SUBCONFIG || subconfig;
                         const upgradeHeader = request.headers.get('Upgrade');
                         if (!upgradeHeader || upgradeHeader !== 'websocket') {
                                 const url = new URL(request.url);
