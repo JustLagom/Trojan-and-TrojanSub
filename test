@@ -25,7 +25,8 @@ export default {
          */
         async fetch(request, env, ctx) {
                 try {
-                        userID = env.UUID || userID;
+                        const userAgent = request.headers.get('User-Agent').toLowerCase();
+                        userID = (env.UUID || userID).toLowerCase();
                         token = env.TOKEN || token;
                         proxyIP = env.PROXYIP || proxyIP;
                         const proxyIPs = await ADD(proxyIP);
