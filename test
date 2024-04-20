@@ -11,11 +11,6 @@ let subconverter = "apiurl.v1.mk";
 let subconfig = "https://raw.githubusercontent.com/JustLagom/test/main/clashconfig.ini";
 let proxyIP = '';
 
-// 虚假uuid和hostname，用于发送给配置生成服务
-let fakeUserID = generateUUID();
-let fakeHostName = generateRandomString();
-let tls = true;
-
 if (!isValidUUID(userID)) {
         throw new Error('uuid is not valid');
 }
@@ -33,9 +28,6 @@ export default {
                         userID = (env.UUID || userID).toLowerCase();
                         token = env.TOKEN || token;
                         proxyIP = env.PROXYIP || proxyIP;
-                        const proxyIPs = await ADD(proxyIP);
-                        proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
-                        //console.log(proxyIP);
                         proxydomain = env.PROXYDOMAIN || proxydomain;
                         sub = env.SUB || sub;
                         subconverter = env.SUBAPI || subconverter;
