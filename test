@@ -32,9 +32,7 @@ export default {
                         sub = env.SUB || sub;
                         subconverter = env.SUBAPI || subconverter;
                         subconfig = env.SUBCONFIG || subconfig;
-                        if (RproxyIP) {
-                                RproxyIP = env.RPROXYIP || !proxyIP ? 'true' : 'false';
-                        }
+                        RproxyIP = env.RPROXYIP || !proxyIP ? 'true' : 'false';
                         if (proxyIP.includes(',')) proxyIP = proxyIP.split(",")[Math.floor(Math.random() * proxyIP.split(",").length)];
                         while(proxyIP.includes(' ')) proxyIP = proxyIP.replace(' ', '');
                         //console.log(proxyIP);
@@ -42,8 +40,7 @@ export default {
                         const url = new URL(request.url);
                         if (url.searchParams.has('notls')) tls = false;
                         if (!upgradeHeader || upgradeHeader !== 'websocket') {
-                                const url = new URL(request.url);
-                                switch (url.pathname) {
+                                switch (url.pathname.toLowerCase()) {
                                 case `/cf`:{
                                         return new Response(JSON.stringify(request.cf, null, 4), {
                                         status: 200,
