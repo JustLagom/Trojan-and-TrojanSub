@@ -1,4 +1,4 @@
-// <!--GAMFC-->version base on commit 43fad05dcdae3b723c53c226f8181fc5bd47223e, time is 2023-06-22 15:20:05 UTC<!--GAMFC-END-->.
+// <!--GAMFC-->version base on commit 841ed4e9ff121dde0ed6a56ae800c2e6c4f66056, time is 2024-04-16 18:02:38 UTC<!--GAMFC-END-->.
 // @ts-ignore
 import { connect } from 'cloudflare:sockets';
 
@@ -8,7 +8,7 @@ let RproxyIP = 'true';
 let proxydomain = 'www.bing.com';
 let sub = 'vless-4ca.pages.dev';
 let subconverter = "apiurl.v1.mk";
-let subconfig = "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online_Full_MultiMode.ini";
+let subconfig = "https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini";
 let socks5Address = '';
 let proxyIP = '';
 
@@ -19,14 +19,14 @@ if (!isValidUUID(userID)) {
 let parsedSocks5Address = {}; 
 let enableSocks = false;
 
-// 虚假uuid和hostname，用于发送给配置生成服务
 let fakeUserID = generateUUID();
 let fakeHostName = generateRandomString();
 let tls = true;
+
 export default {
 	/**
 	 * @param {import("@cloudflare/workers-types").Request} request
-	 * @param {{UUID: string, PROXYIP: string}} env
+	 * @param {{UUID: string, TOKEN: string, PROXYIP: string, RPROXYIP: string, SOCKS5: string, PROXYDOMAIN: string, SUB: string, SUBAPI: string, SUBCONFIG: string}} env
 	 * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
 	 * @returns {Promise<Response>}
 	 */
@@ -36,9 +36,6 @@ export default {
 			userID = (env.UUID || userID).toLowerCase();
 			token = env.TOKEN || token;
 			proxyIP = env.PROXYIP || proxyIP;
-			const proxyIPs = await ADD(proxyIP);
-			proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
-			//console.log(proxyIP);
 			socks5Address = env.SOCKS5 || socks5Address;
 			proxydomain = env.PROXYDOMAIN || proxydomain;
 			sub = env.SUB || sub;
@@ -57,9 +54,6 @@ export default {
 			} else {
 				RproxyIP = env.RPROXYIP || !proxyIP ? 'true' : 'false';
 			}
-			if (proxyIP.includes(',')) proxyIP = proxyIP.split(",")[Math.floor(Math.random() * proxyIP.split(",").length)];
-			while(proxyIP.includes(' ')) proxyIP = proxyIP.replace(' ', '');
-			//console.log(proxyIP);
 			const upgradeHeader = request.headers.get('Upgrade');
 			const url = new URL(request.url);
 			if (url.searchParams.has('notls')) tls = false;
@@ -86,7 +80,7 @@ export default {
 						return new Response(`${vlessConfig}`, {
 							status: 200,
 							headers: {
-								"Content-Type": "text/plain;charset=utf-8",
+								"Content-Type": "text/html;charset=utf-8",
 							}
 						});
 					} else {
@@ -108,8 +102,9 @@ export default {
 					return await fetch(request);
 				}
 			} else {
-				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.split("=")[1];
-				else if (new RegExp('/proxyip.', 'i').test(url.pathname)) proxyIP = url.pathname.split("/proxyip.")[1];
+				proxyIP = url.searchParams.get('proxyip') || proxyIP;
+				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.toLowerCase().split('/proxyip=')[1];
+				else if (new RegExp('/proxyip.', 'i').test(url.pathname)) proxyIP = `proxyip.${url.pathname.toLowerCase().split("/proxyip.")[1]}`;
 				else if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
 				return await vlessOverWSHandler(request);
 			}
@@ -333,9 +328,6 @@ function makeReadableWebSocketStream(webSocketServer, earlyDataHeader, log) {
 	return stream;
 
 }
-
-// https://xtls.github.io/development/protocols/vless.html
-// https://github.com/zizifn/excalidraw-backup/blob/main/v2ray-protocol.excalidraw
 
 /**
  * 
@@ -597,7 +589,7 @@ async function handleDNSQuery(udpChunk, webSocket, vlessResponseHeader, log) {
 	// no matter which DNS server client send, we alwasy use hard code one.
 	// beacsue someof DNS server is not support DNS over TCP
 	try {
-		const dnsServer = '8.8.4.4'; // change to 1.1.1.1 after cf fix connect own ip bug
+		const dnsServer = '8.8.8.8'; // change to 1.1.1.1 after cf fix connect own ip bug
 		const dnsPort = 53;
 		/** @type {ArrayBuffer | null} */
 		let vlessHeader = vlessResponseHeader;
@@ -846,16 +838,6 @@ function generateUUID() {
 	return uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5').toLowerCase();
 }
 
-async function ADD(envadd) {
-	var addtext = envadd.replace(/[	 "'\r\n]+/g, ',').replace(/,+/g, ','); // 将空格、双引号、单引号和换行符替换为逗号
-	//console.log(addtext);
-	if (addtext.charAt(0) == ',') addtext = addtext.slice(1);
-	if (addtext.charAt(addtext.length -1) == ',') addtext = addtext.slice(0, addtext.length - 1);
-	const add = addtext.split(',');
-	//console.log(add);
-	return add ;
-}
-
 /**
  * @param {string} token
  * @param {string} userID
@@ -864,72 +846,36 @@ async function ADD(envadd) {
  * @param {string} userAgent
  * @returns {Promise<string>}
  */
-let type = 'vless://';
 async function getVLESSConfig(token, userID, hostName, sub, userAgent, RproxyIP) {
-	// 如果sub为空，则显示原始内容
-	if (!sub || sub === '') {
-		const vlessMain = `${type}${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
-
+	if ((!sub || sub === '') || (sub && userAgent.includes('mozilla') && !userAgent.includes('linux x86'))) {
 		return `
-  <p>==========================配置详解==============================</p>
-	v2ray
-	---------------------------------------------------------------
-	${vlessMain}
-  <p>==============================================================</p>
-	clash-meta
-	---------------------------------------------------------------
-	- type: vless
-	  name: EDGETUNNEL
-	  server: ${hostName}
-	  port: 443
-	  uuid: ${userID}
-	  network: ws
-	  tls: true
-	  udp: false
-	  sni: ${hostName}
-	  client-fingerprint: chrome
-	  ws-opts:
-	  path: "/?ed=2560"
-	  headers:
-	  host: ${hostName}
-  <p>==============================================================</p>
-	`;
-	} else if (sub && userAgent.includes('mozilla') && !userAgent.includes('linux x86')) {
-		const vlessMain = `${type}${userID}@${hostName}:443?encryption=none&security=tls&sni=${hostName}&fp=chrome&type=ws&host=${hostName}&path=%2F%3Fed%3D2560#${hostName}`;
-
-		return `
-  <p>==========================配置详解==============================</p>
-	Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
-	---------------------------------------------------------------
-	https://${hostName}/${token}
-  <p>==============================================================</p>
-	v2ray
-	---------------------------------------------------------------
-	${vlessMain}
-  <p>==============================================================</p>
-	clash-meta
-	---------------------------------------------------------------
-	- type: vless
-	  name: EDGETUNNEL
-	  server: ${hostName}
-	  port: 443
-	  uuid: ${userID}
-	  network: ws
-	  tls: true
-	  udp: false
-	  sni: ${hostName}
-	  client-fingerprint: chrome
-	  ws-opts:
-	  path: "/?ed=2560"
-	  headers:
-	  host: ${hostName}
-  <p>==============================================================</p>
-	github 项目地址 Star!Star!Star!!!
-	telegram 交流群 技术大佬~在线发牌!
-	https://t.me/CMLiussss
-  <p>==============================================================</p>
-	`;
-	} else {
+		<!DOCTYPE html>
+		<html>
+		<head>
+		<title>Welcome to nginx!</title>
+		<style>
+			body {
+				width: 35em;
+				margin: 0 auto;
+				font-family: Tahoma, Verdana, Arial, sans-serif;
+			}
+		</style>
+		</head>
+		<body>
+		<h1>Welcome to nginx!</h1>
+		<p>If you see this page, the nginx web server is successfully installed and
+		working. Further configuration is required.</p>
+		
+		<p>For online documentation and support please refer to
+		<a href="http://nginx.org/">nginx.org</a>.<br/>
+		Commercial support is available at
+		<a href="http://nginx.com/">nginx.com</a>.</p>
+		
+		<p><em>Thank you for using nginx.</em></p>
+		</body>
+		</html>
+		`;
+	}else {
 		if (typeof fetch != 'function') {
 			return 'Error: fetch is not available in this environment.';
 		}
@@ -943,27 +889,28 @@ async function getVLESSConfig(token, userID, hostName, sub, userAgent, RproxyIP)
 		} else {
 			fakeHostName = `${fakeHostName}.${generateRandomNumber()}.xyz`
 		}
-		let content = "";
-		let url = "";
+
+		let url = `https://${sub}/sub?host=${fakeHostName}&uuid=${fakeUserID}&edgetunnel=cmliu&proxyip=${RproxyIP}`;
 		let isBase64 = false;
 		if (userAgent.includes('clash') && !userAgent.includes('nekobox')) {
-			url = `https://${subconverter}/sub?target=clash&url=https%3A%2F%2F${sub}%2Fsub%3Fhost%3D${fakeHostName}%26uuid%3D${fakeUserID}%26edgetunnel%3Dcmliu%26proxyip%3D${RproxyIP}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
+			url = `https://${subconverter}/sub?target=clash&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
 		} else if (userAgent.includes('sing-box') || userAgent.includes('singbox')) {
-			url = `https://${subconverter}/sub?target=singbox&url=https%3A%2F%2F${sub}%2Fsub%3Fhost%3D${fakeHostName}%26uuid%3D${fakeUserID}%26edgetunnel%3Dcmliu%26proxyip%3D${RproxyIP}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
+			url = `https://${subconverter}/sub?target=singbox&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
 		} else {
-			url = `https://${sub}/sub?host=${fakeHostName}&uuid=${fakeUserID}&edgetunnel=cmliu&proxyip=${RproxyIP}`;
 			isBase64 = true;
 		}
+
 		try {
 			const response = await fetch(url ,{
 			headers: {
 				'User-Agent': 'CF-Workers-edgetunnel/cmliu'
 			}});
-			content = await response.text();
+			const content = await response.text();
 			return revertFakeInfo(content, userID, hostName, isBase64);
 		} catch (error) {
 			console.error('Error fetching content:', error);
 			return `Error fetching content: ${error.message}`;
 		}
+
 	}
 }
