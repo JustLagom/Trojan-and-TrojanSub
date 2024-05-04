@@ -37,7 +37,7 @@ let proxyhosts = [//本地代理域名池
 let proxyhostsURL = 'https://raw.githubusercontent.com/cmliu/CFcdnVmess2sub/main/proxyhosts';//在线代理域名池URL
 let EndPS = '';//节点名备注内容
 
-let FileName = 'Trojansub';
+let FileName = 'TrojanSub';
 let SUBUpdateTime = 6; 
 let total = 99;//PB
 //let timestamp = now;
@@ -483,11 +483,10 @@ export default {
 				
 					if (foundProxyIP) {
 						// 如果找到匹配的proxyIP，赋值给path
-						path = `/proxyIP=${foundProxyIP}`;
+						path = `/proxyIP=${foundProxyIP}?ed=2560`;
 					} else {
 						// 如果没有找到匹配项，随机选择一个proxyIP
-						const randomProxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
-						path = `/proxyIP=${randomProxyIP}`;
+						path = `/proxyIP=proxyip.vultr.fxxk.dedyn.io?ed=2560`;
 					}
 				}
 				
