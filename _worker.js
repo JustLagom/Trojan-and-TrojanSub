@@ -3,9 +3,8 @@ import { connect } from "cloudflare:sockets";
 let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';//sha224加密
 let password= 'ca110us';//password
 let proxydomain = 'www.bing.com';
-let proxyIP = 'proxyip.fxxk.dedyn.io';
+let proxyIP = 'proxyip.fxxk.dedyn.io';//可留空使用订阅器内置proxyIP
 let token= 'trojan';
-let usename= 'trojan';
 let RproxyIP = 'true';
 let sub = 'sub.xmm404.workers.dev';
 let subconverter = 'apiurl.v1.mk';
