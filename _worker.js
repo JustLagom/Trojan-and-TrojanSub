@@ -6,7 +6,6 @@ let proxydomain = 'www.bing.com';
 let proxyIP = 'proxyip.fxxk.dedyn.io';
 let RproxyIP = 'true';//强制使用订阅器内置的proxy IP
 
-
 const worker_default = {
     /**
      * @param {import("@cloudflare/workers-types").Request} request
