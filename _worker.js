@@ -42,31 +42,29 @@ const worker_default = {
                         today.setHours(0, 0, 0, 0);
                         const UD = Math.floor(((now - today.getTime())/86400000) * 24 * 1099511627776 / 2);
                         if (userAgent && userAgent.includes('mozilla')){
-							return new Response(`${trojanConfig}`, {
-								status: 200,
-								headers: {
-									"Content-Type": "text/plain;charset=utf-8",
-									"Profile-Update-Interval": "6",
-									"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${24 * 1099511627776}; expire=${expire}`,
-								}
-							});
-						} else {
-							return new Response(`${trojanConfig}`, {
-								status: 200,
-								headers: {
-									"Content-Disposition": "attachment; filename=edgetunnel; filename*=utf-8''edgetunnel",
-									"Content-Type": "text/plain;charset=utf-8",
-									"Profile-Update-Interval": "6",
-									"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${24 * 1099511627776}; expire=${expire}`,
-								}
-							});
-						}
+				return new Response(`${trojanConfig}`, {
+					status: 200,
+					headers: {
+						"Content-Type": "text/html;charset=utf-8",
 					}
-                    default:
-                            url.hostname = proxydomain;
-                            url.protocol = 'https:';
-                            request = new Request(url, request);
-                            return await fetch(request);
+				});
+			} else {
+				return new Response(`${trojanConfig}`, {
+					status: 200,
+					headers: {
+						"Content-Disposition": "attachment; filename=edgetunnel; filename*=utf-8''edgetunnel",
+						"Content-Type": "text/plain;charset=utf-8",
+						"Profile-Update-Interval": "6",
+						"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${24 * 1099511627776}; expire=${expire}`,
+					}
+				});
+			}
+		 }
+                 default:
+                         url.hostname = proxydomain;
+                         url.protocol = 'https:';
+                         request = new Request(url, request);
+                         return await fetch(request);
                     }
             } else {
                 proxyIP = url.searchParams.get('proxyip') || proxyIP;
