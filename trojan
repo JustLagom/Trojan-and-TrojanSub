@@ -1,76 +1,68 @@
-//快速订阅访问入口, 留空则不启动快速订阅
-let mytoken= [''];
+
+// 部署完成后在网址后面加上这个，获取订阅器默认节点，/auto
+
+let mytoken= ['auto'];//快速订阅访问入口, 留空则不启动快速订阅
+
 // 设置优选地址，不带端口号默认443，TLS订阅生成
 let addresses = [
-	'',
+	'icook.tw:2053#官方优选域名',
+	'cloudflare.cfgo.cc#优选官方线路',
 ];
+
 // 设置优选地址api接口
 let addressesapi = [
-	'',
+	'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesapi.txt', //可参考内容格式 自行搭建。
+	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressesipv6api.txt', //IPv6优选内容格式 自行搭建。
 ];
+
 // 设置优选地址，不带端口号默认80，noTLS订阅生成
 let addressesnotls = [
-	'',
+	'www.visa.com.sg#官方优选域名',
+	'www.wto.org:8080#官方优选域名',
+	'www.who.int:8880#官方优选域名',
 ];
+
 // 设置优选noTLS地址api接口
 let addressesnotlsapi = [
-	 '',
+	'https://raw.githubusercontent.com/cmliu/CFcdnVmess2sub/main/addressesapi.txt', //可参考内容格式 自行搭建。
 ];
-//速度下限
-let DLS = '';
-//iptest测速结果文件
+
+let DLS = 8;//速度下限
 let addressescsv = [
-	'',
+	//'https://raw.githubusercontent.com/cmliu/WorkerVless2sub/main/addressescsv.csv', //iptest测速结果文件。
 ];
-//在线订阅转换后端
-let subconverter = '';
-//订阅转换配置文件
-let subconfig = '';
-//改为 true , 将不做域名判断 始终返回noTLS节点
-let noTLS = '';
+
+let subconverter = "apiurl.v1.mk"; //在线订阅转换后端，目前使用肥羊的订阅转换功能。支持自建psub 可自行搭建https://github.com/bulianglin/psub
+let subconfig = "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online_Full_MultiMode.ini"; //订阅转换配置文件
+let noTLS = false; //改为 true , 将不做域名判断 始终返回noTLS节点
 let link = '';
 let edgetunnel = 'ed';
 let RproxyIP = 'false';
 let proxyIPs = [
-	'us.justlagom.cloudns.org',
-	'gb.justlagom.cloudns.org',
-	'proxyip.sg.fxxk.dedyn.io',
-	'proxyip.jp.fxxk.dedyn.io',
-	'proxyip.hk.fxxk.dedyn.io',
-	'proxyip.kr.fxxk.dedyn.io',
-	'proxyip.tw.fxxk.dedyn.io',
+	'proxyip.aliyun.fxxk.dedyn.io',
+	'proxyip.multacom.fxxk.dedyn.io',
 	'proxyip.vultr.fxxk.dedyn.io',
 ];
 let CMproxyIPs = [
-	{ proxyIP: "us.justlagom.cloudns.org", type: "US" },
-	{ proxyIP: "gb.justlagom.cloudns.org", type: "GB" },
-	{ proxyIP: "proxyip.sg.fxxk.dedyn.io", type: "SG" },
-	{ proxyIP: "proxyip.jp.fxxk.dedyn.io", type: "JP" },
-	{ proxyIP: "proxyip.hk.fxxk.dedyn.io", type: "HK" },
-	{ proxyIP: "proxyip.kr.fxxk.dedyn.io", type: "KR" },
-	{ proxyIP: "proxyip.tw.fxxk.dedyn.io", type: "TW" },
+	//{ proxyIP: "proxyip.fxxk.dedyn.io", type: "HK" },
 ];
-//telegram机器人
-let BotToken = '';
-let ChatID = ''; 
-//本地代理域名池
-let proxyhosts = [
-	'',
+let BotToken ='';
+let ChatID =''; 
+let proxyhosts = [//本地代理域名池
+	//'ppfv2tl9veojd-maillazy.pages.dev',
 ];
-//在线代理域名池URL
-let proxyhostsURL = 'https://raw.githubusercontent.com/cmliu/CFcdnVmess2sub/main/proxyhosts';
-//节点名备注内容
-let EndPS = '';
-let FileName = '';
+let proxyhostsURL = 'https://raw.githubusercontent.com/cmliu/CFcdnVmess2sub/main/proxyhosts';//在线代理域名池URL
+let EndPS = 'test';//节点名备注内容
 
+let FileName = 'Trojansub';
 let SUBUpdateTime = 6; 
 let total = 99;//PB
 //let timestamp = now;
 let timestamp = 4102329600000;//2099-12-31
 const regex = /^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}|\[.*\]):?(\d+)?#?(.*)?$/;
-async function sendMessage(type, ip, add_data = '') {
+async function sendMessage(type, ip, add_data = "") {
 	if ( BotToken !== '' && ChatID !== ''){
-		let msg = '';
+		let msg = "";
 		const response = await fetch(`http://ip-api.com/json/${ip}?lang=zh-CN`);
 		if (response.status == 200) {
 			const ipInfo = await response.json();
@@ -97,7 +89,7 @@ async function getAddressesapi(api) {
 		return [];
 	}
 
-	let newapi = '';
+	let newapi = "";
 
 	// 创建一个AbortController对象，用于控制fetch请求的取消
 	const controller = new AbortController();
@@ -257,10 +249,10 @@ export default {
 		const userAgent = userAgentHeader ? userAgentHeader.toLowerCase() : "null";
 		const url = new URL(request.url);
 		const format = url.searchParams.get('format') ? url.searchParams.get('format').toLowerCase() : "null";
-		let host = '';
-		let uuid = '';
-		let path = '';
-		let sni = '';
+		let host = "";
+		let password = "";
+		let path = "";
+		let sni = "";
 		let UD = Math.floor(((timestamp - Date.now())/timestamp * 99 * 1099511627776 * 1024)/2);
 		if (env.UA) MamaJustKilledAMan = MamaJustKilledAMan.concat(await ADD(env.UA));
 		total = total * 1099511627776 * 1024;
@@ -338,6 +330,12 @@ export default {
 			RproxyIP = url.searchParams.get('proxyip') || RproxyIP;
 			
 			if (!url.pathname.includes("/sub")) {
+				const envKey = env.URL302 ? 'URL302' : (env.URL ? 'URL' : null);
+				if (envKey) {
+					const URLs = await ADD(env[envKey]);
+					const URL = URLs[Math.floor(Math.random() * URLs.length)];
+					return envKey === 'URL302' ? Response.redirect(URL, 302) : fetch(new Request(URL, request));
+				}
 				//首页改成一个nginx伪装页
 				return new Response(await nginx(), {
 					headers: {
@@ -348,10 +346,7 @@ export default {
 			
 			if (!host || !uuid) {
 				const responseText = `
-			缺少必填参数：host 和 uuid
-			Missing required parameters: host and uuid
-			پارامترهای ضروری وارد نشده: هاست و یوآی‌دی			
-			${url.origin}/sub?host=[your host]&uuid=[your uuid]&path=[your path]
+			缺少必填参数：host 和 password
 				`;
 			
 				return new Response(responseText, {
@@ -520,17 +515,15 @@ export default {
 						
 					if (foundProxyIP) {
 						// 如果找到匹配的proxyIP，赋值给path
-						path = `/?ed=2560&proxyip=${foundProxyIP}`;
+						path = `/proxyIP=${foundProxyIP}`;
 					} else {
 						// 如果没有找到匹配项，随机选择一个proxyIP
-						const randomProxyIP = 'proxyip.vultr.fxxk.dedyn.io';
-						path = `/?ed=2560&proxyip=${randomProxyIP}`;
+						const randomProxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+						path = `/proxyIP=${randomProxyIP}`;
 					}
 				}
-					
-                                        let type = 'vless'; 
-					let network = 'ws';
-					const vlessLink = `${type}://${uuid}@${address}:${port}?encryption=none&security=&type=${network}&host=${host}&path=${encodeURIComponent(path)}#${encodeURIComponent(addressid + EndPS)}`;
+
+					const vlessLink = `trojan://${password}@${host}:${port}/?type=ws&host=${host}&security=tls#${usename}&path=${encodeURIComponent(path)}#${encodeURIComponent(addressid + EndPS)}`;
 			
 					return vlessLink;
 				}).join('\n');
@@ -585,11 +578,11 @@ export default {
 				
 					if (foundProxyIP) {
 						// 如果找到匹配的proxyIP，赋值给path
-						path = `/?ed=2560&proxyip=${foundProxyIP}`;
+						path = `/proxyIP=${foundProxyIP}`;
 					} else {
 						// 如果没有找到匹配项，随机选择一个proxyIP
-						const randomProxyIP = 'proxyip.vultr.fxxk.dedyn.io';
-						path = `/?ed=2560&proxyip=${randomProxyIP}`;
+						const randomProxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
+						path = `/proxyIP=${randomProxyIP}`;
 					}
 				}
 				
@@ -599,14 +592,10 @@ export default {
 				if(proxyhosts && (host.includes('.workers.dev') || host.includes('pages.dev'))) {
 					最终路径 = `/${host}${path}`;
 					伪装域名 = proxyhosts[Math.floor(Math.random() * proxyhosts.length)];
-					节点备注 = `${EndPS}`;
+					节点备注 = `${EndPS} 已启用临时域名中转服务，请尽快绑定自定义域！`;
 					sni = 伪装域名;
 				}
-				
-				let type = 'vless';
-				let network = 'ws';
-				let fingerprint = 'chrome';
-				const vlessLink = `${type}://${uuid}@${address}:${port}?encryption=none&security=tls&sni=${sni}&fp=${fingerprint}&type=${network}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+				const vlessLink = `trojan://${password}@${host}:${port}/?type=ws&host=${host}&security=tls#${usename}&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
 			
 				return vlessLink;
 			}).join('\n');
