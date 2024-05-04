@@ -15,7 +15,7 @@ let fakeHostName = generateRandomString();
 const worker_default = {
     /**
      * @param {import("@cloudflare/workers-types").Request} request
-     * @param {{UUID, TOKEN, PROXYIP, PROXYDOMAIN, PASSWORD, USENAME, RPROXYIP: string}} env
+     * @param {{UUID, TOKEN, PROXYIP, PROXYDOMAIN, PASSWORD, RPROXYIP: string}} env
      * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
      * @returns {Promise<Response>}
      */
@@ -26,7 +26,6 @@ const worker_default = {
             const userAgent = UA.toLowerCase();
             proxyIP = env.PROXYIP || proxyIP;
             password = env.PASSWORD || password;
-            usename = env.USENAME || usename;
             proxydomain = env.PROXYDOMAIN || proxydomain;
             RproxyIP = env.RPROXYIP || !proxyIP ? 'true' : 'false';
             const upgradeHeader = request.headers.get("Upgrade");
