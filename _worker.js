@@ -1,66 +1,34 @@
 // src/worker.js
 import { connect } from "cloudflare:sockets";
-let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';//sha224加密
-let password= 'ca110us';//password
+let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';//sha224加密后password
+let password= 'ca110us';//password必须一致
 let proxydomain = 'www.bing.com';
-let proxyIP = 'proxyip.fxxk.dedyn.io';//可留空使用订阅器内置proxyIP
-let token= 'trojan';
-let RproxyIP = 'true';
-let sub = 'sub.xmm404.workers.dev';
-let subconverter = 'apiurl.v1.mk';
-let subconfig = 'https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini';
-let fakePassword = generatePASSWORD();
-let fakeHostName = generateRandomString();
+let proxyIP = 'proxyip.fxxk.dedyn.io';
+let RproxyIP = 'true';//强制使用订阅器内置的proxy IP
+
 
 const worker_default = {
     /**
      * @param {import("@cloudflare/workers-types").Request} request
-     * @param {{UUID, TOKEN, PROXYIP, PROXYDOMAIN, PASSWORD, RPROXYIP: string}} env
+     * @param {{PASSWORD, PROXYIP, PROXYDOMAIN, RPROXYIP: string}} env
      * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
      * @returns {Promise<Response>}
      */
     async fetch(request, env, ctx) {
         try {
-            token = env.TOKEN || token;
-            const UA = request.headers.get('User-Agent') || 'null';
-            const userAgent = UA.toLowerCase();
-            proxyIP = env.PROXYIP || proxyIP;
             password = env.PASSWORD || password;
+            proxyIP = env.PROXYIP || proxyIP;
             proxydomain = env.PROXYDOMAIN || proxydomain;
-            RproxyIP = env.RPROXYIP || !proxyIP ? 'true' : 'false';
+            RproxyIP = env.RPROXYIP || RproxyIP;
             const upgradeHeader = request.headers.get("Upgrade");
             const url = new URL(request.url);
             if (!upgradeHeader || upgradeHeader !== "websocket") {
-                // const url = new URL(request.url);
-                switch (url.pathname.toLowerCase()) {
-                    case `/${token}`:{
-                        const trojanConfig = await getTrojanConfig(password, request.headers.get('Host'), sub, UA, RproxyIP, url);
-                        const now = Date.now();
-                        const timestamp = Math.floor(now / 1000);
-                        const expire = 4102329600;//2099-12-31
-                        const today = new Date(now);
-                        today.setHours(0, 0, 0, 0);
-                        const UD = Math.floor(((now - today.getTime())/86400000) * 24 * 1099511627776 / 2);
-                        if (userAgent && userAgent.includes('mozilla')){
-				return new Response(`${trojanConfig}`, {
-					status: 200,
-					headers: {
-						"Content-Type": "text/html;charset=utf-8",
-					}
-				});
-			} else {
-				return new Response(`${trojanConfig}`, {
-					status: 200,
-					headers: {
-						"Content-Disposition": "attachment; filename=edgetunnel; filename*=utf-8''edgetunnel",
-						"Content-Type": "text/plain;charset=utf-8",
-						"Profile-Update-Interval": "6",
-						"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${24 * 1099511627776}; expire=${expire}`,
-					}
-				});
-			}
-		 }
-                 default:
+                const url = new URL(request.url);
+                switch (url.pathname) {
+                    case "/link":
+                        const host = request.headers.get('Host');
+                        return new Response("404 Not found", { status: 404 });
+                    default:
                          url.hostname = proxydomain;
                          url.protocol = 'https:';
                          request = new Request(url, request);
@@ -68,10 +36,10 @@ const worker_default = {
                     }
             } else {
                 proxyIP = url.searchParams.get('proxyip') || proxyIP;
-				if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.toLowerCase().split('/proxyip=')[1];
-				else if (new RegExp('/proxyip.', 'i').test(url.pathname)) proxyIP = `proxyip.${url.pathname.toLowerCase().split("/proxyip.")[1]}`;
-				else if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
-				return await trojanOverWSHandler(request);
+                if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.toLowerCase().split('/proxyip=')[1];
+                else if (new RegExp('/proxyip.', 'i').test(url.pathname)) proxyIP = `proxyip.${url.pathname.toLowerCase().split("/proxyip.")[1]}`;
+                else if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
+                return await trojanOverWSHandler(request);
             }
         } catch (err) {
             let e = err;
@@ -371,119 +339,3 @@ export {
     default
 };
 //# sourceMappingURL=worker.js.map
-function revertFakeInfo(content, password, hostName, isBase64) {
-	if (isBase64) content = atob(content);//Base64解码
-	content = content.replace(new RegExp(fakePassword, 'g'), password).replace(new RegExp(fakeHostName, 'g'), hostName);
-	if (isBase64) content = btoa(content);//Base64编码
-
-	return content;
-}
-
-function generateRandomNumber() {
-	let minNum = 100000;
-	let maxNum = 999999;
-	return Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
-}
-
-function generateRandomString() {
-	let minLength = 2;
-	let maxLength = 3;
-	let length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-	let characters = 'abcdefghijklmnopqrstuvwxyz';
-	let result = '';
-	for (let i = 0; i < length; i++) {
-		result += characters[Math.floor(Math.random() * characters.length)];
-	}
-	return result;
-}
-
-function generatePASSWORD() {
-	let uuid = '';
-	for (let i = 0; i < 32; i++) {
-		let num = Math.floor(Math.random() * 16);
-		if (num < 10) {
-			uuid += num;
-		} else {
-			uuid += String.fromCharCode(num + 55);
-		}
-	}
-	return uuid.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5').toLowerCase();
-}
-
-let subParams = ['sub','base64','b64','clash','singbox','sb'];
-
-/**
- * @param {string} password
- * @param {string | null} hostName
- * @param {string} sub
- * @param {string} UA
- * @returns {Promise<string>}
- */
-async function getTrojanConfig(password, hostName, sub, UA, RproxyIP, _url) {
-	const userAgent = UA.toLowerCase();
-	if ((!sub || sub === '' || (sub && userAgent.includes('mozilla'))) && !subParams.some(_searchParams => _url.searchParams.has(_searchParams))) {
-		return `
-		<!DOCTYPE html>
-		<html>
-		<head>
-		<title>Welcome to nginx!</title>
-		<style>
-			body {
-				width: 35em;
-				margin: 0 auto;
-				font-family: Tahoma, Verdana, Arial, sans-serif;
-			}
-		</style>
-		</head>
-		<body>
-		<h1>Welcome to nginx!</h1>
-		<p>If you see this page, the nginx web server is successfully installed and
-		working. Further configuration is required.</p>
-		
-		<p>For online documentation and support please refer to
-		<a href="http://nginx.org/">nginx.org</a>.<br/>
-		Commercial support is available at
-		<a href="http://nginx.com/">nginx.com</a>.</p>
-		
-		<p><em>Thank you for using nginx.</em></p>
-		</body>
-		</html>
-		`;
-        } else {
-		if (typeof fetch != 'function') {
-			return 'Error: fetch is not available in this environment.';
-		}
-		if (hostName.includes(".workers.dev")){
-			fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.workers.dev`;
-		} else if (hostName.includes(".pages.dev")){
-			fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.pages.dev`;
-		} else {
-			fakeHostName = `${fakeHostName}.${generateRandomNumber()}.xyz`
-		}
-
-		let url = `https://${sub}/sub?host=${hostName}&password=${password}&proxyip=${RproxyIP}`;
-		let isBase64 = true;
-		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase())){
-			if ((userAgent.includes('clash') && !userAgent.includes('nekobox')) || ( _url.searchParams.has('clash') && !userAgent.includes('subconverter'))) {
-				url = `https://${subconverter}/sub?target=clash&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-				isBase64 = false;
-			} else if (userAgent.includes('sing-box') || userAgent.includes('singbox') || (( _url.searchParams.has('singbox') || _url.searchParams.has('sb')) && !userAgent.includes('subconverter'))) {
-				url = `https://${subconverter}/sub?target=singbox&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-				isBase64 = false;
-			}
-		}
-		
-		try {
-			const response = await fetch(url ,{
-			headers: {
-				'User-Agent': `${UA} CF-Workers-edgetunnel/cmliu`
-			}});
-			const content = await response.text();
-			return revertFakeInfo(content, password, hostName, isBase64);
-		} catch (error) {
-			console.error('Error fetching content:', error);
-			return `Error fetching content: ${error.message}`;
-		}
-
-	}
-}
