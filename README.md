@@ -5,10 +5,5 @@ https://订阅器域名/sub?host=xxxx&password=xxxx&proxyip=true或者false（tr
 
 二、_worker.js（Trojan配置）部署更改password与sha244加密值
 
-https://域名/token即为自适应订阅链接(默认伪装页)
+https://域名/token即为自适应订阅链接
 
-base64格式 https://域名/token?base64（目前报错error code 1042）
-
-clash格式 https://域名/token?clash
-
-singbox格式 https://域名/token?singbox
