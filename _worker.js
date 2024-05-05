@@ -54,7 +54,7 @@ const worker_default = {
                         	return new Response(`${trojanConfig}`, {
                         		status: 200,
                         		headers: {
-                        			"Content-Type": "text/html;charset=utf-8",
+                        			"Content-Type": "text/plain;charset=utf-8",
                         		}
                         	});
                         } else {
@@ -452,69 +452,12 @@ let subParams = ['sub','base64','b64','clash','singbox','sb'];
 async function getTROJANConfig(password, hostName, sub, UA, RproxyIP, _url) {
 	const userAgent = UA.toLowerCase();
 	if ((!sub || sub === '' || (sub && userAgent.includes('mozilla'))) && !subParams.some(_searchParams => _url.searchParams.has(_searchParams))) {
-		return `
-		<!DOCTYPE html>
-		<html>
-		<head>
-		<title>Welcome to nginx!</title>
-		<style>
-			body {
-				width: 35em;
-				margin: 0 auto;
-				font-family: Tahoma, Verdana, Arial, sans-serif;
-			}
-		</style>
-		</head>
-		<body>
-		<h1>Welcome to nginx!</h1>
-		<p>If you see this page, the nginx web server is successfully installed and
-		working. Further configuration is required.</p>
-		
-		<p>For online documentation and support please refer to
-		<a href="http://nginx.org/">nginx.org</a>.<br/>
-		Commercial support is available at
-		<a href="http://nginx.com/">nginx.com</a>.</p>
-		
-		<p><em>Thank you for using nginx.</em></p>
-		</body>
-		</html>
-		`;
-	} else {
-		if (typeof fetch != 'function') {
-			return 'Error: fetch is not available in this environment.';
-		}
-
-		if (hostName.includes(".workers.dev")){
-			fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.workers.dev`;
-		} else if (hostName.includes(".pages.dev")){
-			fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.pages.dev`;
-		} else {
-			fakeHostName = `${fakeHostName}.${generateRandomNumber()}.xyz`
-		}
-
-		let url = `https://${sub}/sub?host=${fakeHostName}&password=${password}&proxyip=${RproxyIP}`;
-		let isBase64 = true;
-		
-		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase())){
-			if ((userAgent.includes('clash') && !userAgent.includes('nekobox')) || ( _url.searchParams.has('clash') && !userAgent.includes('subconverter'))) {
-				url = `https://${subconverter}/sub?target=clash&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-				isBase64 = false;
-			} else if (userAgent.includes('sing-box') || userAgent.includes('singbox') || (( _url.searchParams.has('singbox') || _url.searchParams.has('sb')) && !userAgent.includes('subconverter'))) {
-				url = `https://${subconverter}/sub?target=singbox&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
-				isBase64 = false;
-			}
-		}
-
-		try {
-			const response = await fetch(url ,{
-			headers: {
-				'User-Agent': `${UA} CF-Workers-edgetunnel/cmliu`
-			}});
-			const content = await response.text();
-			return revertFakeInfo(content, password, hostName, isBase64);
-		} catch (error) {
-			console.error('Error fetching content:', error);
-			return `Error fetching content: ${error.message}`;
-		}
-	}
+    return `
+    <p>==========================配置详解==============================</p>
+    Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
+    ---------------------------------------------------------------
+    订阅地址：https://${sub}/sub?host=${hostName}&password=${password}&proxyip=${RproxyIP}
+    <p>==============================================================</p>
+    `
+  }
 }
