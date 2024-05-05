@@ -5,18 +5,15 @@ let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';
 let password= 'ca110us';//7位password与sha224加密值必须一致
 //伪装web
 let proxydomain = 'www.bing.com';
-//proxyip疑似存在bug无法访问cf
+//proxyip
 let proxyIP = 'proxyip.fxxk.dedyn.io';
-let RproxyIP = 'true';//true则强制使用订阅器内置的proxyIP
+let RproxyIP = 'true';//设为true则强制使用订阅器内置的proxyIP
 //自行设置TOKEN
 let token= '1101';
 //内置订阅器嵌套
-let sub = 'sub.xmm404.workers.dev';
-let subconverter = 'apiurl.v1.mk';
-let subconfig = 'https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini';
-//返回虚假password与host
-let fakePassword = generatePASSWORD();
-let fakeHostName = generateRandomString();
+let sub = 'sub.xmm404.workers.dev';//订阅器
+let subconverter = 'apiurl.v1.mk';//转换后端
+let subconfig = 'https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini';//配置文件config
 
 const worker_default = {
     /**
@@ -381,67 +378,6 @@ export {
 };
 //# sourceMappingURL=worker.js.map
 
-function revertFakeInfo(content, userID, hostName, isBase64) {
-    // 如果需要Base64解码，尝试解码并捕获可能的错误
-    if (isBase64) {
-      try {
-        content = atob(content);
-      } catch (e) {
-        console.error('Base64解码错误:', e.message);
-        // 如果解码失败，直接返回原始字符串以便调试
-        return content;
-      }
-    }
-  
-    // 进行替换操作
-    content = content.replace(new RegExp('fakeUserID', 'g'), userID)
-                     .replace(new RegExp('fakeHostName', 'g'), hostName);
-  
-    // 如果需要Base64编码，尝试编码并捕获可能的错误
-    if (isBase64) {
-      try {
-        content = btoa(content);
-      } catch (e) {
-        console.error('Base64编码错误:', e.message);
-        // 如果编码失败，直接返回未编码的字符串以便调试
-        return content;
-      }
-    }
-  
-    // 返回处理后的内容
-    return content;
-  }
-
-function generateRandomNumber() {
-	let minNum = 100000;
-	let maxNum = 999999;
-	return Math.floor(Math.random() * (maxNum - minNum + 1)) + minNum;
-}
-
-function generateRandomString() {
-	let minLength = 2;
-	let maxLength = 3;
-	let length = Math.floor(Math.random() * (maxLength - minLength + 1)) + minLength;
-	let characters = 'abcdefghijklmnopqrstuvwxyz';
-	let result = '';
-	for (let i = 0; i < length; i++) {
-		result += characters[Math.floor(Math.random() * characters.length)];
-	}
-	return result;
-}
-
-function generatePASSWORD() {
-  let length = 7; // 您可以根据需要调整密钥长度
-  let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-}
-
-let subParams = ['sub','base64','b64','clash','singbox','sb'];
-
 /**
  * @param {string} password
  * @param {string | null} hostName
@@ -449,15 +385,20 @@ let subParams = ['sub','base64','b64','clash','singbox','sb'];
  * @param {string} UA
  * @returns {Promise<string>}
  */
+let subParams = ['sub','base64','b64','clash','singbox','sb'];
 async function getTROJANConfig(password, hostName, sub, UA, RproxyIP, _url) {
 	const userAgent = UA.toLowerCase();
 	if ((!sub || sub === '' || (sub && userAgent.includes('mozilla'))) && !subParams.some(_searchParams => _url.searchParams.has(_searchParams))) {
     return `
-    <p>==========================配置详解==============================</p>
+    <p>====================================配置详解========================================</p>
     Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
     ---------------------------------------------------------------
     订阅地址：https://${sub}/sub?host=${hostName}&password=${password}&proxyip=${RproxyIP}
-    <p>==============================================================</p>
+    <p>==================================================================================</p>
+    github 项目地址 Star!Star!Star!!!
+	telegram 交流群 技术大佬~在线发牌!
+	https://t.me/CMLiussss
+    <p>==================================================================================</p>
     `
   }
 }
