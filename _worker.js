@@ -1,14 +1,20 @@
 // src/worker.js
 import { connect } from "cloudflare:sockets";
-let sha224Password = 'B69AEAE8B7389AA205E680269EC4BDC8DB066606760A2809C773275A';//sha224加密后password
-let password= 'ca110usa';//8位password与sha224加密值必须一致
+//自行设置password
+let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';//password加密后sha224值
+let password= 'ca110us';//7位password与sha224加密值必须一致
+//伪装web
 let proxydomain = 'www.bing.com';
+//proxyip存在bug无法访问cf
 let proxyIP = 'proxyip.fxxk.dedyn.io';
-let RproxyIP = 'true';//强制使用订阅器内置的proxy IP
+let RproxyIP = 'true';//true则强制使用订阅器内置的proxyIP
+//TOKEN
 let token= '1101';
+//订阅器嵌套
 let sub = 'sub.xmm404.workers.dev';
 let subconverter = 'apiurl.v1.mk';
 let subconfig = 'https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini';
+//返回虚假password与host
 let fakePassword = generatePASSWORD();
 let fakeHostName = generateRandomString();
 
@@ -221,7 +227,7 @@ async function parseTrojanHeader(buffer) {
     if (!address) {
         return {
             hasError: true,
-            message: `address is empty, addressType is ${address}`
+            message: `address is empty, addressType is ${atype}`
         };
     }
 
@@ -425,7 +431,7 @@ function generateRandomString() {
 }
 
 function generatePASSWORD() {
-  let length = 8; // 您可以根据需要调整密钥长度
+  let length = 7; // 您可以根据需要调整密钥长度
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   let result = '';
   for (let i = 0; i < length; i++) {
@@ -477,6 +483,7 @@ async function getTROJANConfig(password, hostName, sub, UA, RproxyIP, _url) {
 		if (typeof fetch != 'function') {
 			return 'Error: fetch is not available in this environment.';
 		}
+
 		if (hostName.includes(".workers.dev")){
 			fakeHostName = `${fakeHostName}.${generateRandomString()}${generateRandomNumber()}.workers.dev`;
 		} else if (hostName.includes(".pages.dev")){
@@ -487,6 +494,7 @@ async function getTROJANConfig(password, hostName, sub, UA, RproxyIP, _url) {
 
 		let url = `https://${sub}/sub?host=${fakeHostName}&password=${password}&proxyip=${RproxyIP}`;
 		let isBase64 = true;
+		
 		if (!userAgent.includes(('CF-Workers-SUB').toLowerCase())){
 			if ((userAgent.includes('clash') && !userAgent.includes('nekobox')) || ( _url.searchParams.has('clash') && !userAgent.includes('subconverter'))) {
 				url = `https://${subconverter}/sub?target=clash&url=${encodeURIComponent(url)}&insert=false&config=${encodeURIComponent(subconfig)}&emoji=true&list=false&tfo=false&scv=true&fdn=false&sort=false&new_name=true`;
@@ -496,7 +504,7 @@ async function getTROJANConfig(password, hostName, sub, UA, RproxyIP, _url) {
 				isBase64 = false;
 			}
 		}
-		
+
 		try {
 			const response = await fetch(url ,{
 			headers: {
