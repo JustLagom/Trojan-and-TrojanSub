@@ -15,17 +15,22 @@ let sub = 'sub.xmm404.workers.dev';//订阅器
 let subconverter = 'apiurl.v1.mk';//转换后端
 let subconfig = 'https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini';//配置文件config
 
+if (!isValidSHA224(sha224Password)) {
+    throw new Error('sha224Password is not valid');
+}
+
 const worker_default = {
     /**
      * @param {import("@cloudflare/workers-types").Request} request
-     * @param {{TOKEN, PASSWORD, PROXYIP, PROXYDOMAIN, RPROXYIP, SUB, SUBAPI, SUBCONFIG: string}} env
+     * @param {{TOKEN, PASSWORD, SHA224PASS, PROXYIP, PROXYDOMAIN, RPROXYIP, SUB, SUBAPI, SUBCONFIG: string}} env
      * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
      * @returns {Promise<Response>}
      */
     async fetch(request, env, ctx) {
         try {
-            password = env.PASSWORD || password;
             token = env.TOKEN || token;
+            password = env.PASSWORD || password;
+            sha224Password = env.SHA224PASS || sha224Password
             proxyIP = env.PROXYIP || proxyIP;
             proxydomain = env.PROXYDOMAIN || proxydomain;
             RproxyIP = env.RPROXYIP || RproxyIP;
@@ -344,6 +349,11 @@ async function remoteSocketToWS(remoteSocket, webSocket, retry, log) {
         log(`retry`);
         retry();
     }
+}
+
+function isValidSHA224(hash) {
+    const sha224Regex = /^[0-9a-f]{56}$/i;
+    return sha224Regex.test(hash);
 }
 
 function base64ToArrayBuffer(base64Str) {
