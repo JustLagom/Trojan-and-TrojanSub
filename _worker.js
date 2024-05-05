@@ -5,12 +5,12 @@ let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';
 let password= 'ca110us';//7位password与sha224加密值必须一致
 //伪装web
 let proxydomain = 'www.bing.com';
-//proxyip存在bug无法访问cf
+//proxyip疑似存在bug无法访问cf
 let proxyIP = 'proxyip.fxxk.dedyn.io';
 let RproxyIP = 'true';//true则强制使用订阅器内置的proxyIP
-//TOKEN
+//自行设置TOKEN
 let token= '1101';
-//订阅器嵌套
+//内置订阅器嵌套
 let sub = 'sub.xmm404.workers.dev';
 let subconverter = 'apiurl.v1.mk';
 let subconfig = 'https://raw.githubusercontent.com/JustLagom/test/main/urltestconfig.ini';
