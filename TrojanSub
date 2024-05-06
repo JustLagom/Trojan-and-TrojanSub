@@ -492,15 +492,15 @@ export default {
 				}
 				
 				let 伪装域名 = host ;
-				let 最终路径 = path ;
-				let 节点备注 = EndPS ;
+				let 节点备注 = `${EndPS}`;
+				let 最终路径 = `${path}`;
+				
 				if(proxyhosts && (host.includes('.workers.dev') || host.includes('pages.dev'))) {
-					最终路径 = `/${host}${path}`;
 					伪装域名 = proxyhosts[Math.floor(Math.random() * proxyhosts.length)];
-					节点备注 = `${EndPS}`;
-					sni = 伪装域名;
+					最终路径 = `/${host}${path}`;
 				}
-				const vlessLink = `trojan://${password}@${address}:${port}?security=tls&sni=${sni}&fp=chrome&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+
+				const vlessLink = `trojan://${password}@${address}:${port}?security=tls&sni=&fp=chrome&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
 			
 				return vlessLink;
 			}).join('\n');
