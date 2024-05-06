@@ -492,10 +492,10 @@ export default {
 				
 					if (foundProxyIP) {
 						// 如果找到匹配的proxyIP，赋值给path
-						path = `/proxyIP=${foundProxyIP}`;
+						path = `/?ed=2560&proxyIP=${foundProxyIP}`;
 					} else {
 						// 如果没有找到匹配项，随机选择一个proxyIP
-						path = `/proxyIP=proxyip.vultr.fxxk.dedyn.io`;
+						path = `/?ed=2560&proxyIP=proxyip.vultr.fxxk.dedyn.io`;
 					}
 				}
 				
@@ -506,9 +506,10 @@ export default {
 				if(proxyhosts && (host.includes('.workers.dev') || host.includes('pages.dev'))) {
 					伪装域名 = proxyhosts[Math.floor(Math.random() * proxyhosts.length)];
 					最终路径 = `/${host}${path}`;
+					sni = 伪装域名;
 				}
 
-				const vlessLink = `trojan://${password}@${address}:${port}?security=tls&sni=&fp=chrome&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
+				const vlessLink = `trojan://${password}@${address}:${port}?security=tls&sni=${sni}&fp=chrome&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
 			
 				return vlessLink;
 			}).join('\n');
