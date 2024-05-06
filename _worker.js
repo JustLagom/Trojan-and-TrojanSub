@@ -46,31 +46,13 @@ const worker_default = {
                 switch (url.pathname.toLowerCase()) {
                     case `/${token}`: {
                         const trojanConfig = await getTROJANConfig(password, request.headers.get('Host'), sub, UA, RproxyIP, url);
-                        const now = Date.now();
-                        const timestamp = Math.floor(now / 1000);
-                        const expire = 4102329600;//2099-12-31
-                        const today = new Date(now);
-                        today.setHours(0, 0, 0, 0);
-                        const UD = Math.floor(((now - today.getTime())/86400000) * 24 * 1099511627776 / 2);
-                        if (userAgent && userAgent.includes('mozilla')){
-                        	return new Response(`${trojanConfig}`, {
-                        		status: 200,
-                        		headers: {
-                        			"Content-Type": "text/plain;charset=utf-8",
-                        		}
-                        	});
-                        } else {
-                        	return new Response(`${trojanConfig}`, {
-                        		status: 200,
-                        		headers: {
-                        			"Content-Disposition": "attachment; filename=TrojanConfig; filename*=utf-8''TrojanConfig",
-                        			"Content-Type": "text/plain;charset=utf-8",
-                        			"Profile-Update-Interval": "6",
-                        			"Subscription-Userinfo": `upload=${UD}; download=${UD}; total=${24 * 1099511627776}; expire=${expire}`,
-                        		}
-                        	});
-                        }
-                    }
+                        return new Response(`${trojanConfig}`, {
+                        	status: 200,
+                        	headers: {
+                        		"Content-Type": "text/plain;charset=utf-8",
+                        	}
+                        });
+                    } 
                     default:
                          url.hostname = proxydomain;
                          url.protocol = 'https:';
@@ -78,10 +60,10 @@ const worker_default = {
                          return await fetch(request);
                       }
             } else {
-                proxyIP = url.searchParams.get('proxyip') || proxyIP;
-                if (new RegExp('/proxyip=', 'i').test(url.pathname)) proxyIP = url.pathname.toLowerCase().split('/proxyip=')[1];
-                else if (new RegExp('/proxyip.', 'i').test(url.pathname)) proxyIP = `proxyip.${url.pathname.toLowerCase().split("/proxyip.")[1]}`;
-                else if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
+                // 从查询字符串中获取'proxyip'参数
+                proxyIP = url.searchParams.get('proxyIP') || proxyIP;
+                // 如果查询字符串中没有'proxyip'参数，则使用默认值
+                if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
                 return await trojanOverWSHandler(request);
             }
         } catch (err) {
