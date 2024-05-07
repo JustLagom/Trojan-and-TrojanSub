@@ -8,7 +8,7 @@ https://订阅器域名/sub?host=xxxx&password=xxxx&proxyip=true或者false（tr
 
 使用你自己的password和sha224Password替换 `password`、`sha224Password`。你可以点击 [这里](https://www.atatus.com/tools/sha224-to-hash).获取sha224加密值。
 
-https://[你的域名]/[设置的token]即为自适应订阅链接页面获取订阅链接。
+https://[你的域名]/[你的password]即为自适应订阅链接页面获取订阅链接。
 
 ## 未支持事项
 - UDP
