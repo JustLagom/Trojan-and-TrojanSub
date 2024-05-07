@@ -5,11 +5,9 @@ let sha224Password = '08f32643dbdacf81d0d511f1ee24b06de759e90f8edf742bbdc57d88';
 let password= 'ca110us';//7位password与sha224加密值必须一致
 //伪装web
 let proxydomain = 'www.bing.com';
-//proxyip
+//设置proxyip
 let proxyIP = 'proxyip.fxxk.dedyn.io';
 let RproxyIP = 'true';//设为true则强制使用订阅器内置的proxyIP
-//自行设置TOKEN
-let token= '1101';
 //内置订阅器嵌套
 let sub = 'sub.xmm404.workers.dev';//订阅器
 let subconverter = 'apiurl.v1.mk';//转换后端
@@ -22,18 +20,17 @@ if (!isValidSHA224(sha224Password)) {
 const worker_default = {
     /**
      * @param {import("@cloudflare/workers-types").Request} request
-     * @param {{TOKEN, PASSWORD, SHA224PASS, PROXYIP, PROXYDOMAIN, RPROXYIP, SUB, SUBAPI, SUBCONFIG: string}} env
+     * @param {{PASSWORD, SHA224PASS, PROXYIP, PROXYDOMAIN, RPROXYIP, SUB, SUBAPI, SUBCONFIG: string}} env
      * @param {import("@cloudflare/workers-types").ExecutionContext} ctx
      * @returns {Promise<Response>}
      */
     async fetch(request, env, ctx) {
         try {
-            token = env.TOKEN || token;
             password = env.PASSWORD || password;
             sha224Password = env.SHA224PASS || sha224Password
-            proxyIP = env.PROXYIP || proxyIP;
             proxydomain = env.PROXYDOMAIN || proxydomain;
             RproxyIP = env.RPROXYIP || RproxyIP;
+            proxyIP = env.PROXYIP || proxyIP;
             sub = env.SUB || sub;
             subconverter = env.SUBAPI || subconverter;
             subconfig = env.SUBCONFIG || subconfig;
@@ -44,7 +41,7 @@ const worker_default = {
             if (!upgradeHeader || upgradeHeader !== "websocket") {
                 //const url = new URL(request.url);
                 switch (url.pathname.toLowerCase()) {
-                    case `/${token}`: {
+                    case `/${password}`: {
                         const trojanConfig = await getTROJANConfig(password, request.headers.get('Host'), sub, UA, RproxyIP, url);
                         return new Response(`${trojanConfig}`, {
                         	status: 200,
@@ -383,13 +380,13 @@ async function getTROJANConfig(password, hostName, sub, UA, RproxyIP, _url) {
 	if ((!sub || sub === '' || (sub && userAgent.includes('mozilla'))) && !subParams.some(_searchParams => _url.searchParams.has(_searchParams))) {
     return `
     <p>===================================================配置详解=======================================================</p>
-    Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
+      Subscribe / sub 订阅地址, 支持 Base64、clash-meta、sing-box 订阅格式, 您的订阅内容由 ${sub} 提供维护支持, 自动获取ProxyIP: ${RproxyIP}.
     --------------------------------------------------------------------------------------------------------------------
-    订阅地址：https://${sub}/sub?host=${hostName}&password=${password}&proxyip=${RproxyIP}
+      订阅地址：https://${sub}/sub?host=${hostName}&password=${password}&proxyip=${RproxyIP}
     <p>=================================================================================================================</p>
-    github 项目地址 Star!Star!Star!!!
-    telegram 交流群 技术大佬~在线发牌!
-    https://t.me/CMLiussss
+      github 项目地址 Star!Star!Star!!!
+      telegram 交流群 技术大佬~在线发牌!
+      https://t.me/CMLiussss
     <p>=================================================================================================================</p>
     `
   }
