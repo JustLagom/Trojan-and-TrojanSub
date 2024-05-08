@@ -1,12 +1,10 @@
 ## 快速上手
-一、TrojanSub（订阅器代码） 可部署订阅器参考vless订阅器部署，自行设置优选ip api
+一、TrojanSub（为Trojan订阅器代码） 可部署Trojan订阅器可参考vless订阅器部署方式自行部署，添加优选ip api
 
 https://订阅器域名/sub?host=xxxx&password=xxxx&proxyip=true或者false（true即启用订阅器内设置proxyIP）。
 
 
-二、_worker.js（Trojan配置）部署更改password与sha244加密值
-
-使用你自己的password和sha224Password替换 `password`、`sha224Password`。你可以点击 [这里](https://www.atatus.com/tools/sha224-to-hash).获取sha224加密值。
+二、_worker.js（为Trojan节点配置）部署仅需更改明文密码password
 
 https://[你的域名]/[你的password]即为自适应订阅链接页面获取订阅链接。
 
