@@ -60,8 +60,9 @@ export default {
             } else {
                 // 从查询字符串中获取'proxyip'参数
                 proxyIP = url.searchParams.get('proxyIP') || proxyIP;
-                // 如果查询字符串中没有'proxyip'参数，则使用默认值
-                if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
+                if (new RegExp('/proxyIP=', 'i').test(url.pathname)) proxyIP = url.pathname.toLowerCase().split('/proxyIP=')[1];
+                else if (new RegExp('/proxyIP.', 'i').test(url.pathname)) proxyIP = `proxyIP.${url.pathname.toLowerCase().split("/proxyIP.")[1]}`;
+		else if (!proxyIP || proxyIP == '') proxyIP = 'proxyip.fxxk.dedyn.io';
                 return await trojanOverWSHandler(request);
             }
         } catch (err) {
