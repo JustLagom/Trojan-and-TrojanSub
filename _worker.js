@@ -4,7 +4,7 @@ import { connect } from "cloudflare:sockets";
 let password = 'cacm'; 
 let sha224Password ;
 //设置伪装web
-let proxydomain = 'www.bing.com';
+let proxydomain = 'www.pptv.com';
 //设置proxyIP
 let proxyIP = 'proxyip.fxxk.dedyn.io';
 let RproxyIP = 'true';//设为true则强制使用订阅器内置的proxyIP
