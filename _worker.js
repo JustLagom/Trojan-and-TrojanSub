@@ -1,7 +1,7 @@
 // src/worker.js
 import { connect } from "cloudflare:sockets";
 // 设置明文密码
-let password = 'cacm'; 
+let password = 'windows15'; 
 let sha224Password ;
 //设置伪装web
 let proxydomain = 'www.pptv.com';
